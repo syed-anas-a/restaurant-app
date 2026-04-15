@@ -10,7 +10,7 @@ function Navbar() {
       <div className='nav-container'>
         <a className='navlink home'>Home</a>
         <a className='navlink menu'>Menu</a>
-        <a className='navlink gallery'>Gallery</a>
+        <a className='navlink gallery'>Blogs</a>
         <a className='navlink contact'>Contact Us</a>
       </div>
       <div className='btn-container'>
