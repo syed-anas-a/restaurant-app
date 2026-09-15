@@ -1,15 +1,22 @@
-from django.shortcuts import render
+from rest_framework import status
 from rest_framework.response import Response
 from rest_framework.views import APIView
-from rest_framework import status
+from rest_framework_simplejwt.tokens import RefreshToken
 from . import serializers
 
 # Create your views here.
-class RegisterUser(APIView):
+class RegisterView(APIView):
 
     def post(self, request):
         serializer = serializers.UserSerializer(data=request.data)
-        if serializer.is_valid():
-            serializer.save()
-            return Response(serializer.data, status=status.HTTP_201_CREATED)
-        return Response({"error": serializer.errors}, status=status.HTTP_400_BAD_REQUEST)
+        serializer.is_valid(raise_exception=True)
+
+        user = serializer.save()
+        refresh = RefreshToken.for_user(user)
+
+        return Response({
+            "user": serializer.data,
+            "access": str(refresh.access),
+            "refresh": str(refresh)
+        }, status=status.HTTP_201_created)
+
