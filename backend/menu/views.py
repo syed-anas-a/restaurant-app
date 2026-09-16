@@ -8,15 +8,18 @@ from rest_framework.permissions import AllowAny, IsAuthenticated
 from users.permissions import IsManager, IsDeliveryCrew
 
 # Create your views here.
-class MenuListCreateView(APIView):
+class MenuView(APIView):
+
+    permission_classes = [AllowAny]
+
     def get(self, request):
-        permission_classes = [AllowAny]
         queryset = Menu.objects.all()
         serializer = MenuSerializer(queryset, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
     
     def post(self, request):
-        permission_classes = [IsManager] 
+        if request.user.group != "MANAGER":
+            return Response({"message":"Not Authorized"}, status=status.HTTP_403_UNAUTHORIZED)
         serializer = MenuSerializer(data=request.data)
         if serializer.is_valid():
             serializer.save()
@@ -24,22 +27,23 @@ class MenuListCreateView(APIView):
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 class MenuDetailView(APIView):
-    def get(self, request, pk):
-        permission_classes = [AllowAny]
-        item = get_object_or_404(Menu, pk=pk)
+    def get(self, request, item_id):
+        item = get_object_or_404(Menu, id=item_id)
         serializer = MenuSerializer(item)
         return Response(serializer.data, status=status.HTTP_200_OK) 
 
-    def put(self, request, pk):
-        permission_classes = [IsManager]
-        item = get_object_or_404(Menu, pk=pk)
+    def put(self, request, item_id):
+        if request.user.group != "MANAGER":
+            return Response({"message":"Not Authorized"}, status=status.HTTP_403_UNAUTHORIZED)
+        item = get_object_or_404(Menu, id=item_id)
         serializer = MenuSerializer(data=item)
         serializer.is_valid(raise_exception=True)
         return Response(serializer.data, status=status.HTTP_201_OK)
 
-    def delete(self, request, pk):
-        permission_classes = [IsManager]
-        item = get_object_or_404(Menu, pk=pk)
+    def delete(self, request, item_id):
+        if request.user.group != "MANAGER":
+            return Response({"message":"Not Authorized"}, status=status.HTTP_403_UNAUTHORIZED)
+        item = get_object_or_404(Menu, id=item_id)
         item.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
 

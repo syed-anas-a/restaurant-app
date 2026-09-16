@@ -11,6 +11,8 @@ class Menu(models.Model):
     price = models.DecimalField(max_digits=8, decimal_places=2)
     description = models.CharField(max_length=450)
     category = models.ForeignKey(Category, on_delete=models.SET_NULL, null=True)
+
+
  
 
 

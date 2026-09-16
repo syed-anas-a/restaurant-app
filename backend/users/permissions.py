@@ -9,5 +9,10 @@ class IsDeliveryCrew(BasePermission):
             return request.user.group.filter(name='Delivery Crew').exists()
 
 class IsCustomer(BasePermission):
-      def has_permission(self, request, view):
-            return request.user.group.filter(name='Customer').exists() 
+    def has_permission(self, request, view):
+        return request.user.group.filter(name='Customer').exists() 
+
+class IsOwner(BasePermission):
+    def has_object_permission(self, request, view, obj):
+        return request.user == obj
+         
