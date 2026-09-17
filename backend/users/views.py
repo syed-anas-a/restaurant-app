@@ -11,11 +11,11 @@ from rest_framework.permissions import IsAuthenticated
 # Create your views here.
 class UserView(APIView):
 
-    permission_classes = [IsManager]
-
     def get(self, request):
+        if not request.user.group == "MANAGER":
+            return Response({"message":"Not Authorized"}, status=status.HTTP_403_FORBIDDEN)
         data = User.objects.all()
-        serializer = UserSerializer(data=data)
+        serializer = UserSerializer(data)
         return Response(serializer.data, status=status.HTTP_200_OK)
 
     def post(self, request):

@@ -7,14 +7,17 @@ from rest_framework.response import Response
 from rest_framework import status
 from cart.models import Cart, CartItem
 from users.permissions import IsManager, IsOwner, IsDeliveryCrew, IsCustomer
+from rest_framework.permissions import IsAuthenticated
 
 # Create your views here.
 class OrderView(APIView):
-    permission_classes = [IsCustomer]
 
     def get(self, request):
-        order = get_object_or_404(Order, user=request.user)
-        serializer = OrderSerializer(data=order)
+        if request.user.group == "MANAGER":
+            order = Order.objects.all()
+        else:
+            order = Order.objects.filter(user=request.user)
+        serializer = OrderSerializer(order, many=True)
         return Response({"data": serializer.data}, status=status.HTTP_200_OK)
 
     def post(self, request):
@@ -27,6 +30,22 @@ class OrderView(APIView):
         order.save()
         cart.delete()
         return Response({"message":"order created"}, status=status.HTTP_201_CREATED)
+
+class OrderDetailView(APIView):
+
+    permission_classes = [IsAuthenticated, IsOwner]
+
+    def get(self, request, order_id):
+
+        order = get_object_or_404(Order, id=order_id)
+        if not request.user.group == "MANAGER":
+            self.check_object_permissions(request, order.user)
+
+        serializer = OrderSerializer(order)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+    
+
+
 
 
         

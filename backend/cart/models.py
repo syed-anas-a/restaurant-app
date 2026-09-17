@@ -5,7 +5,7 @@ from menu.models import Menu
 # Create your models here.
 class Cart(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE)
-    cart_value = models.DecimalField(max_digits=10, decimal_places=2) 
+    cart_value = models.DecimalField(max_digits=10, decimal_places=2, default=0.0) 
 
 class CartItem(models.Model):
     cart = models.ForeignKey(Cart, on_delete=models.CASCADE)
