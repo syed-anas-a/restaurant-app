@@ -9,6 +9,7 @@ from cart.models import Cart, CartItem
 from users.permissions import IsManager, IsOwner, IsDeliveryCrew, IsCustomer
 from rest_framework.permissions import IsAuthenticated
 from .utils import get_available_crew
+from django.db import transaction
 
 # Create your views here.
 class OrderView(APIView):
@@ -21,29 +22,30 @@ class OrderView(APIView):
         serializer = OrderSerializer(order, many=True)
         return Response({"data": serializer.data}, status=status.HTTP_200_OK)
 
+    
     def post(self, request):
-        cart = get_object_or_404(Cart, user=request.user)
-        cart_items = CartItem.objects.filter(cart=cart)
+        with transaction.atomic():
+            cart = get_object_or_404(Cart, user=request.user)
+            cart_items = CartItem.objects.filter(cart=cart)
 
-        if not cart_items:
-            return Response({"error":"cart is empty"}, status=status.HTTP_400_BAD_REQUEST)
-        
-        order = Order.objects.create(
-            user=request.user,
-            order_value = cart.cart_value
-        )
-        OrderItem.objects.bulk_create([
-            OrderItem(
-                order=order,
-                menu_item=item.menu_item,
-                quantity=item.quantity,
-                price=item.price
+            if not cart_items:
+                return Response({"error":"cart is empty"}, status=status.HTTP_400_BAD_REQUEST)
+            
+            order = Order.objects.create(
+                user=request.user,
+                order_value = cart.cart_value
             )
-            for item in cart_items
-        ])
+            OrderItem.objects.bulk_create([
+                OrderItem(
+                    order=order,
+                    menu_item=item.menu_item,
+                    quantity=item.quantity,
+                    price=item.price
+                )
+                for item in cart_items
+            ])
+            cart.delete()
 
-        cart.delete()
-        
         return Response({"message":"order created"}, status=status.HTTP_201_CREATED)
 
 class OrderDetailView(APIView):

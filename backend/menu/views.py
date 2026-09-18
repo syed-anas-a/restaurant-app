@@ -62,7 +62,7 @@ class CategoryView(APIView):
     def post(self, request):
         if request.user.group != "MANAGER":
             return Response({"message":"Not Authorized"}, status=status.HTTP_403_FORBIDDEN)
-        serializer = CategorySerializer(data=request.data)
+        serializer = CategorySerializer(data=request.data, many=True)
         if serializer.is_valid():
             serializer.save()
             return Response(serializer.data, status=status.HTTP_201_CREATED)
