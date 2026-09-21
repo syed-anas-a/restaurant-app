@@ -20,7 +20,7 @@ class OrderView(APIView):
         else:
             order = Order.objects.filter(user=request.user)
         serializer = OrderSerializer(order, many=True)
-        return Response({"data": serializer.data}, status=status.HTTP_200_OK)
+        return Response(serializer.data, status=status.HTTP_200_OK)
 
     
     def post(self, request):

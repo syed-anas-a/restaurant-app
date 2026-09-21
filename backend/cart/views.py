@@ -23,7 +23,8 @@ class CartView(APIView):
         return Response(serializer.data, status=status.HTTP_200_OK)
 
     def post(self, request):
-        menu_item_id = request.data.get("menu_item_id")
+
+        menu_item_id = request.data.get("menu_item")
         quantity = request.data.get("quantity", 1)
 
         with transaction.atomic():
