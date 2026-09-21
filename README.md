@@ -260,8 +260,7 @@ backend/
 ├── users/             → Custom User model + manager, JWT auth, permissions, admin config
 ├── menu/              → Category & Menu models, CRUD views
 ├── cart/              → Cart & CartItem models, atomic cart operations
-├── orders/            → Order & OrderItem models, transactional placement, status management, crew utils
-└── booking/           → Table reservations (scaffold)
+└── orders/            → Order & OrderItem models, transactional placement, status management, crew utils
 
 frontend/
 ├── src/
