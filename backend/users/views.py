@@ -7,17 +7,12 @@ from .serializers import UserSerializer
 from .permissions import IsCustomer, IsDeliveryCrew, IsManager, IsOwner
 from .models import User
 from django.shortcuts import get_object_or_404
-from rest_framework.permissions import IsAuthenticated
+from rest_framework.permissions import IsAuthenticated, AllowAny
 
 # Create your views here.
-class UserView(APIView):
+class RegisterView(APIView):
 
-    def get(self, request):
-        if not request.user.group == "MANAGER":
-            return Response({"message":"Not Authorized"}, status=status.HTTP_403_FORBIDDEN)
-        data = User.objects.all()
-        serializer = UserSerializer(data)
-        return Response(serializer.data, status=status.HTTP_200_OK)
+    permission_classes=[AllowAny]
 
     def post(self, request):
         serializer = UserSerializer(data=request.data)
@@ -31,6 +26,16 @@ class UserView(APIView):
             "access": str(refresh.access_token),
             "refresh": str(refresh)
         }, status=status.HTTP_201_CREATED)
+
+class UserView(APIView):
+
+    permission_classes = [IsAuthenticated, IsManager]
+
+    def get(self, request):
+        data = User.objects.all()
+        serializer = UserSerializer(data, many=True)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+
 
 class UserDetailView(APIView):
 
